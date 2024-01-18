@@ -4,7 +4,7 @@
 
 TUDO em tecnologia se resume a `entrada -> processamento -> saida`
 
-**front-end ( web / mobile / android / ios / hibrido: react native / flutter )**
+### front-end ( web / mobile / android / ios / hibrido: react native / flutter )
 
 - quem da a entrada?
   - usuario
@@ -22,7 +22,7 @@ TUDO em tecnologia se resume a `entrada -> processamento -> saida`
     - html + css
   - cookie / localStorage / asyncStorage / qualquer storage disponivel no front
 
-**back-end**
+### back-end
 
 - quem da a entrada?
   - usuario
@@ -35,7 +35,7 @@ TUDO em tecnologia se resume a `entrada -> processamento -> saida`
   - txt
   - html
 
-**cli**
+### cli
 
 request -> response
 
