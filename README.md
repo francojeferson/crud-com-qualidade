@@ -162,7 +162,7 @@ o mundo da programacao tem zilhares de sopa de letrinhas
 
 - responsavel por PEGAR dados e ENVIAR dados
 
-### código de exemplo
+### código de exemplo [FRONT]
 
 ```html
 <script>
@@ -174,13 +174,60 @@ o mundo da programacao tem zilhares de sopa de letrinhas
     const $input = document.getElementById('input');
     // fail fast validations
     if(!isTweetValid($input.value)) return;
-    // daqui em diante, podemos confiar que TEMOS os dados que ...
-    const tweet = validateTweet($input.value);
+    const tweet = $input;
+    // daqui em diante, podemos confiar que TEMOS os dados que precisamos
     tweetRepository.postTweet(tweet);
+    alert("Tweet publicado com sucesso!");
   }
 </script>
 <form>
   <input type="text" id="input" />
   <button type="button" onclick="tweetController()">Tweetar</button>
 </form>
+```
+
+### [BACK]
+
+[controller] -> recebe o dado do **INPUT**
+
+[repository] -> onde fica a lógica de acesso ao banco de dados
+
+- Responsável por PEGAR dados e por ENVIAR dados
+
+```js
+const tweetRepository {
+  getTweets() {},
+  postTweet() {}
+}
+function tweetController(request, response) {
+  // fail fast validation
+  if(!isTweetValid(request.body)) return response.status(400).send('Invalid tweet');
+  const tweet = $input;
+  // daqui em diante, podemos confiar que TEMOS os dados que precisamos
+  tweetRepository.postTweet(tweet);
+  return response.status(200).send('Tweet posted');
+}
+```
+
+> [httpstatusdogs.com](https://httpstatusdogs.com)
+
+## resumo
+
+- isso tudo faz link com `input -> processamento -> output`
+
+- `input (usuario, frontend, serviço) -> processamento (controller, repository) -> output (response, view)`
+
+- CRUDs
+
+- Model
+  - representaçao do dado/abstraçao
+
+```js
+function Tweet(conteudo, usuario) {
+  return {
+    content: conteudo,
+    user: usuario,
+    data: new Date().now,
+  };
+}
 ```
