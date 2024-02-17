@@ -231,3 +231,30 @@ function Tweet(conteudo, usuario) {
   };
 }
 ```
+
+## create - memoria vs disco
+
+```js
+console.log('[CRUD]');
+```
+
+`$node ./core/crud.js` -> `[CRUD]`
+
+`$npm init -y`
+
+```js
+"scripts": {
+  "dev": "node ./core/crud.js"
+}
+```
+
+`$npm install --save-dev nodemon`
+
+```js
+"scripts": {
+  "start": "node ./core/crud.js",
+  "dev": "nodemon ./core/crud.js"
+}
+```
+
+`$npx gitignore node`
