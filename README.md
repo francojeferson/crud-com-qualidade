@@ -234,7 +234,7 @@ function Tweet(conteudo, usuario) {
 
 ## create - memoria vs disco
 
-```js
+```js (crud)
 console.log('[CRUD]');
 ```
 
@@ -242,7 +242,7 @@ console.log('[CRUD]');
 
 `$npm init -y`
 
-```js
+```json (package)
 "scripts": {
   "dev": "node ./core/crud.js"
 }
@@ -250,7 +250,7 @@ console.log('[CRUD]');
 
 `$npm install --save-dev nodemon`
 
-```js
+```json (package)
 "scripts": {
   "start": "node ./core/crud.js",
   "dev": "nodemon ./core/crud.js"
@@ -258,3 +258,31 @@ console.log('[CRUD]');
 ```
 
 `$npx gitignore node`
+
+`$npm install typescript`
+
+```json (tsconfig)
+"include": ["**/*.ts"],
+```
+
+`$npx tsc --init`
+
+`$npm i -D @types/node`
+
+```json (package)
+"scripts": {
+  "start:crud": "npx ts-node ./core/crud.ts",
+  "dev:crud": "nodemon --ext ts,tsx --exec 'npm run start:crud'",
+}
+```
+
+```ts (crud)
+import fs from 'fs'; // ES6
+// const fs = require('fs'); - CommonJS
+// ...
+function create(content: string) {
+  // ...
+}
+```
+
+> [ts-node](https://www.npmjs.com/package/ts-node)
