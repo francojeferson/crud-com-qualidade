@@ -319,6 +319,8 @@ function create(content: string) {
 // db: [object Object]
 ```
 
+> [json](https://www.json.org/json-pt.html)
+
 ```ts (crud)
 // salvar o content no sistema
 fs.writeFileSync(DB_FILE_PATH, JSON.stringify(todo));
