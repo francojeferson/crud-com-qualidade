@@ -319,6 +319,8 @@ function create(content: string) {
 // db: [object Object]
 ```
 
+> [json](https://www.json.org/json-pt.html)
+
 ```ts (crud)
 // salvar o content no sistema
 fs.writeFileSync(DB_FILE_PATH, JSON.stringify(todo));
@@ -530,3 +532,364 @@ console.log(read());
 //   "dogs": []
 // }
 ```
+
+## update - lidando com ids, uuids e granularidade de updates de uma entidade
+
+```ts (crud)
+interface Todo {
+  id: string;
+  date: string;
+  content: string;
+  done: boolean;
+}
+
+function create(content: string) {
+  const todo: Todo = {
+    id: '1',
+    date: new Date().toISOString(),
+    content: content,
+    done: false,
+  };
+  // ...
+}
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "id": "1",
+//       "date": "2024-02-18T17:01:05.095Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "1",
+//       "date": "2024-02-18T17:01:05.095Z",
+//       "content": "Segunda TODO",
+//       "done": false
+//     }
+//   ],
+//   "dogs": []
+// }
+```
+
+> [uuid](https://www.npmjs.com/package/uuid)
+
+> [rfc4122](https://datatracker.ietf.org/doc/html/rfc4122)
+
+```ts (crud)
+function create(content: string) {
+  const todo: Todo = {
+    id: Date.now().toString(),
+    date: new Date().toISOString(),
+    content: content,
+    done: false,
+  };
+  // ...
+}
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "id": "1708276388270",
+//       "date": "2024-02-18T17:13:08.270Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "1708276388270",
+//       "date": "2024-02-18T17:13:08.270Z",
+//       "content": "Segunda TODO",
+//       "done": false
+//     }
+//   ],
+//   "dogs": []
+// }
+```
+
+`$npm install uuid`
+
+```ts (crud)
+import fs from 'fs'; // ES6
+// const fs = require('fs'); - CommonJS
+import { v4 as uuid } from 'uuid';
+const DB_FILE_PATH = './core/db';
+
+// Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`ts(7016)
+```
+
+`$npm i --save-dev @types/uuid`
+
+```ts (crud)
+function create(content: string) {
+  const todo: Todo = {
+    id: uuid(),
+    date: new Date().toISOString(),
+    content: content,
+    done: false,
+  };
+  // ...
+}
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "id": "efbfff46-8be5-4b21-a658-0e240e79123a",
+//       "date": "2024-02-18T17:18:52.419Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "ee6f5736-215b-47a0-b5ba-71bef31a178a",
+//       "date": "2024-02-18T17:18:52.420Z",
+//       "content": "Segunda TODO",
+//       "done": false
+//     }
+//   ],
+//   "dogs": []
+// }
+```
+
+```ts (crud)
+function update() {}
+
+function CLEAR_DB() {
+  fs.writeFileSync(DB_FILE_PATH, '');
+}
+
+// [SIMULATION]
+CLEAR_DB();
+create('Primeira TODO');
+create('Segunda TODO');
+update(DEQUEM, OQUE);
+console.log(read());
+```
+
+```ts (crud)
+function create(content: string): Todo {
+  const todo: Todo = {
+    id: uuid(),
+    date: new Date().toISOString(),
+    content: content,
+    done: false,
+  };
+
+  const todos: Todo[] = [...read(), todo];
+
+  // salvar o content no sistema
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify({ todos, dogs: [] }, null, 2));
+  return todo;
+```
+
+```ts (crud)
+function update(id: string) {}
+
+function CLEAR_DB() {
+  fs.writeFileSync(DB_FILE_PATH, '');
+}
+
+// [SIMULATION]
+CLEAR_DB();
+create('Primeira TODO');
+create('Primeira TODO');
+const terceiraTodo = create('Segunda TODO');
+update(terceiraTodo.id, OQUE);
+console.log(read());
+```
+
+```ts (crud)
+function update(id: string, todo: Partial<Todo>) {
+  console.log(todo);
+}
+
+function CLEAR_DB() {
+  fs.writeFileSync(DB_FILE_PATH, '');
+}
+
+// [SIMULATION]
+CLEAR_DB();
+create('Primeira TODO');
+create('Primeira TODO');
+const terceiraTodo = create('Segunda TODO');
+update(terceiraTodo.id, { content: 'segunda todo com novo content' });
+console.log(read());
+```
+
+```ts (crud)
+function update(id: string, todo: Partial<Todo>) {
+  console.log(todo);
+  const todos = read();
+  todos.forEach((currentTodo) => {
+    console.log(currentTodo);
+  });
+}
+```
+
+```ts (crud)
+function update(id: string, partialTodo: Partial<Todo>) {
+  const todos = read();
+  todos.forEach((currentTodo) => {
+    const isToUpdate = currentTodo.id === id;
+    if (isToUpdate) {
+      Object.assign(currentTodo, partialTodo);
+    }
+  });
+  console.log('TODOS ATUALIZADAS', todos);
+}
+```
+
+```ts (crud)
+function update(id: string, partialTodo: Partial<Todo>) {
+  const todos = read();
+  todos.forEach((currentTodo) => {
+    const isToUpdate = currentTodo.id === id;
+    if (isToUpdate) {
+      Object.assign(currentTodo, partialTodo);
+    }
+  });
+
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify({ todos }, null, 2));
+}
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "id": "0606367f-958f-4e3d-84c0-461cac7b76a1",
+//       "date": "2024-02-18T17:35:18.252Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "0a4bb80b-cdbf-4cc6-be66-92d2158dc744",
+//       "date": "2024-02-18T17:35:18.252Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "1182589d-550b-4308-af96-487846df65bf",
+//       "date": "2024-02-18T17:35:18.262Z",
+//       "content": "segunda todo com novo content",
+//       "done": false
+//     }
+//   ]
+// }
+```
+
+```js (exemplo-object-assign)
+const todo = {
+  id: 1,
+  content: 'learn js',
+  done: false,
+  date: new Date().toISOString(),
+};
+
+const partialTodo = {
+  content: 'NOVO CONTEUDO',
+  done: true,
+};
+
+const updatedTodo = Object.assign(todo, partialTodo);
+
+console.log(updatedTodo);
+```
+
+```ts (crud)
+function update(id: string, partialTodo: Partial<Todo>): Todo {
+  let updatedTodo;
+  const todos = read();
+  todos.forEach((currentTodo) => {
+    const isToUpdate = currentTodo.id === id;
+    if (isToUpdate) {
+      updatedTodo = Object.assign(currentTodo, partialTodo);
+    }
+  });
+
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify({ todos }, null, 2));
+
+  if (!updatedTodo) {
+    throw new Error('please provide another id');
+  }
+
+  return updatedTodo;
+}
+
+// ...
+
+// [SIMULATION]
+CLEAR_DB();
+create('Primeira TODO');
+create('Primeira TODO');
+const terceiraTodo = create('Segunda TODO');
+update(terceiraTodo.id, { content: 'atualizada', done: true });
+console.log(read());
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "id": "ae241648-e695-4de6-a3f9-ed9c0f0f5bfb",
+//       "date": "2024-02-18T17:47:35.989Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "bb64373a-6579-4dc0-9148-4a39831750c2",
+//       "date": "2024-02-18T17:47:35.989Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "827be065-72bd-41ad-899c-7a5861c9bf7e",
+//       "date": "2024-02-18T17:47:35.999Z",
+//       "content": "atualizada",
+//       "done": true
+//     }
+//   ]
+// }
+```
+
+```ts
+function updateContentById(id: string, content: string): Todo {
+  return update(id, { content });
+}
+
+// ...
+
+// [SIMULATION]
+CLEAR_DB();
+create('Primeira TODO');
+create('Primeira TODO');
+const terceiraTodo = create('Segunda TODO');
+// update(terceiraTodo.id, { content: 'atualizada', done: true });
+updateContentById(terceiraTodo.id, 'nova atualizada');
+console.log(read());
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "id": "86d68052-af31-4461-9eaf-9c7e462850f8",
+//       "date": "2024-02-18T17:52:10.576Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "bdf41086-c73e-43ea-8edb-49ae1f865c2d",
+//       "date": "2024-02-18T17:52:10.576Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "id": "d8556525-3db6-48da-970f-787db7178095",
+//       "date": "2024-02-18T17:52:10.578Z",
+//       "content": "nova atualizada",
+//       "done": false
+//     }
+//   ]
+// }
+```
+
+## delete - finalizando a primeira parte do crud
