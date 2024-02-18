@@ -1,0 +1,15 @@
+{
+  "todos": [
+    {
+      "date": "2024-02-18T11:32:08.098Z",
+      "content": "Primeira TODO",
+      "done": false
+    },
+    {
+      "date": "2024-02-18T11:32:08.098Z",
+      "content": "Segunda TODO",
+      "done": false
+    }
+  ],
+  "dogs": []
+}

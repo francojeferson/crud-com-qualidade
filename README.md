@@ -162,7 +162,7 @@ o mundo da programacao tem zilhares de sopa de letrinhas
 
 - responsavel por PEGAR dados e ENVIAR dados
 
-### código de exemplo
+### código de exemplo [FRONT]
 
 ```html
 <script>
@@ -174,13 +174,359 @@ o mundo da programacao tem zilhares de sopa de letrinhas
     const $input = document.getElementById('input');
     // fail fast validations
     if(!isTweetValid($input.value)) return;
-    // daqui em diante, podemos confiar que TEMOS os dados que ...
-    const tweet = validateTweet($input.value);
+    const tweet = $input;
+    // daqui em diante, podemos confiar que TEMOS os dados que precisamos
     tweetRepository.postTweet(tweet);
+    alert("Tweet publicado com sucesso!");
   }
 </script>
 <form>
   <input type="text" id="input" />
   <button type="button" onclick="tweetController()">Tweetar</button>
 </form>
+```
+
+### [BACK]
+
+[controller] -> recebe o dado do **INPUT**
+
+[repository] -> onde fica a lógica de acesso ao banco de dados
+
+- Responsável por PEGAR dados e por ENVIAR dados
+
+```js
+const tweetRepository {
+  getTweets() {},
+  postTweet() {}
+}
+function tweetController(request, response) {
+  // fail fast validation
+  if(!isTweetValid(request.body)) return response.status(400).send('Invalid tweet');
+  const tweet = $input;
+  // daqui em diante, podemos confiar que TEMOS os dados que precisamos
+  tweetRepository.postTweet(tweet);
+  return response.status(200).send('Tweet posted');
+}
+```
+
+> [httpstatusdogs.com](https://httpstatusdogs.com)
+
+## resumo
+
+- isso tudo faz link com `input -> processamento -> output`
+
+- `input (usuario, frontend, serviço) -> processamento (controller, repository) -> output (response, view)`
+
+- CRUDs
+
+- Model
+  - representaçao do dado/abstraçao
+
+```js
+function Tweet(conteudo, usuario) {
+  return {
+    content: conteudo,
+    user: usuario,
+    data: new Date().now,
+  };
+}
+```
+
+## create - memoria vs disco
+
+```js (crud)
+console.log('[CRUD]');
+```
+
+`$node ./core/crud.js` -> `[CRUD]`
+
+`$npm init -y`
+
+```json (package)
+"scripts": {
+  "dev": "node ./core/crud.js"
+}
+```
+
+`$npm install --save-dev nodemon`
+
+```json (package)
+"scripts": {
+  "start": "node ./core/crud.js",
+  "dev": "nodemon ./core/crud.js"
+}
+```
+
+`$npx gitignore node`
+
+`$npm install typescript`
+
+```json (tsconfig)
+"include": ["**/*.ts"],
+```
+
+`$npx tsc --init`
+
+`$npm i -D @types/node`
+
+```json (package)
+"scripts": {
+  "start:crud": "npx ts-node ./core/crud.ts",
+  "dev:crud": "nodemon --ext ts,tsx --exec 'npm run start:crud'",
+}
+```
+
+```ts (crud)
+import fs from 'fs'; // ES6
+// const fs = require('fs'); - CommonJS
+// ...
+function create(content: string) {
+  // ...
+}
+```
+
+> [ts-node](https://www.npmjs.com/package/ts-node)
+
+## read - estruturas de dados para guardar informaçoes
+
+```ts (crud)
+// [SIMULATION]
+create('Primeira TODO');
+console.log(read());
+```
+
+```ts (crud)
+function read() {
+  const db = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+  return db;
+}
+
+// db: Primeira TODO
+```
+
+```ts (crud)
+function create(content: string) {
+  const todo = {
+    content: content,
+  };
+  console.log(todo);
+
+  // salvar o content no sistema
+  fs.writeFileSync(DB_FILE_PATH, todo.toString());
+  return content;
+}
+
+// db: [object Object]
+```
+
+```ts (crud)
+// salvar o content no sistema
+fs.writeFileSync(DB_FILE_PATH, JSON.stringify(todo));
+return content;
+
+// db: {"content":"Segunda TODO"}
+```
+
+```ts (crud)
+const todo = {
+  date: new Date().toISOString(),
+  content: content,
+};
+
+// db: {"date":"2024-02-17T21:30:29.438Z","content":"Segunda TODO"}
+```
+
+```ts (crud)
+// [SIMULATION]
+create('Primeira TODO');
+create('Segunda TODO');
+console.log(read());
+
+// db: {"date":"2024-02-17T21:32:52.037Z","content":"Segunda TODO"}
+```
+
+```ts (crud)
+function create(content: string) {
+  const todo = {
+    date: new Date().toISOString(),
+    content: content,
+  };
+
+  const todos = [todo];
+
+  // salvar o content no sistema
+  fs.writeFileSync(DB_FILE_PATH, JSON.stringify(todos));
+  return content;
+}
+
+// db: [{"date":"2024-02-17T21:34:52.425Z","content":"Segunda TODO"}]
+```
+
+```ts (crud)
+// salvar o content no sistema
+fs.writeFileSync(DB_FILE_PATH, JSON.stringify({ todos }, null, 2));
+return content;
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "date": "2024-02-18T11:04:48.623Z",
+//       "content": "Segunda TODO"
+//     }
+//   ]
+// }
+```
+
+```ts (crud)
+// salvar o content no sistema
+fs.writeFileSync(DB_FILE_PATH, JSON.stringify({ todos, dogs: [] }, null, 2));
+return content;
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "date": "2024-02-18T11:09:11.257Z",
+//       "content": "Segunda TODO"
+//     }
+//   ],
+//   "dogs": []
+// }
+```
+
+```ts (crud)
+interface Todo {
+  date: string;
+  content: string;
+  done: boolean;
+}
+
+function create(content: string) {
+  const todo: Todo = {
+    date: new Date().toISOString(),
+    content: content,
+  };
+  // ...
+}
+
+// Property 'done' is missing in type '{ date: string; content: string; }' but required in type 'Todo'.ts(2741)
+```
+
+```ts (crud)
+const todo: Todo = {
+  date: new Date().toISOString(),
+  content: content,
+  done: false,
+};
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "date": "2024-02-18T11:14:10.476Z",
+//       "content": "Segunda TODO",
+//       "done": false
+//     }
+//   ],
+//   "dogs": []
+// }
+```
+
+```ts (crud)
+function read(): Array<Todo> {
+  const db = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+  return db;
+}
+
+// Type 'string' is not assignable to type 'Todo[]'.ts(2322)
+```
+
+```ts (crud)
+function read(): Array<Todo> {
+  const dbString = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+  const db = JSON.parse(dbString);
+  return db;
+}
+```
+
+```ts (crud)
+function read(): Array<Todo> {
+  const dbString = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+  const db = JSON.parse(dbString || '{}');
+  return db;
+}
+
+// [SIMULATION]
+// create('Primeira TODO');
+// create('Segunda TODO');
+console.log(read());
+
+// db: vazio
+```
+
+```ts (crud)
+function read(): Array<Todo> {
+  const dbString = fs.readFileSync(DB_FILE_PATH, 'utf-8');
+  const db = JSON.parse(dbString || '{}');
+  // fail fast validation
+  if (!db.todos) {
+    return [];
+  }
+  return db.todos;
+}
+
+// db: vazio
+```
+
+```ts (crud)
+const todos: Todo[] = [...read(), todo];
+// diamond operator
+const todos: Array<Todo> = [...read(), todo];
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "date": "2024-02-18T11:26:22.949Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "date": "2024-02-18T11:27:31.289Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     }
+//   ],
+//   "dogs": []
+// }
+```
+
+```ts (crud)
+function CLEAR_DB() {
+  fs.writeFileSync(DB_FILE_PATH, '');
+}
+
+// [SIMULATION]
+CLEAR_DB();
+create('Primeira TODO');
+create('Segunda TODO');
+console.log(read());
+
+// db:
+// {
+//   "todos": [
+//     {
+//       "date": "2024-02-18T11:32:08.098Z",
+//       "content": "Primeira TODO",
+//       "done": false
+//     },
+//     {
+//       "date": "2024-02-18T11:32:08.098Z",
+//       "content": "Segunda TODO",
+//       "done": false
+//     }
+//   ],
+//   "dogs": []
+// }
 ```
